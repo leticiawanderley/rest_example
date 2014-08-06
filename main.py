@@ -53,10 +53,19 @@ class Post:
         for comment in self.comments:
             dict1["comments"].append(comment.todict())
         return dict1
-def list_dicts():
+
+def list_dicts_posts():
    dicts = []
    for post in Post.posts:
        dicts.append(post.todict())
+   return dicts
+
+def list_dicts_comments(id_post):
+   dicts = []
+   post = get_by_id(id_post)
+   if post:
+       for comment in post.comments:
+           dicts.append(comment.todict())
    return dicts
 
 def get_by_id(id):
@@ -65,6 +74,12 @@ def get_by_id(id):
    return None
 
 
+def get_by_id(id_post, id_comment):
+   post = get_by_id(id_post)
+   if post:
+        for comment in post.comments:
+            if int(id_comment) == comment.id: return comment
+   return None
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -136,7 +151,7 @@ class CommentCollectionHandler(webapp2.RequestHandler):
     def get(self, id):
         post = get_by_id(id)
         if post:
-            self.response.out.write(json.dumps(post.comments))
+            self.response.out.write(json.dumps(list_dict_comments(id)))
             self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
             self.response.set_status(200)	    
         else:
@@ -167,7 +182,7 @@ class CommentIndividualHandler(webapp2.RequestHandler):
     def get(self, id_post, id_comment):
         post = get_by_id(id_post)
         if post:
-            comment = get_comment_by_id(id_comment)
+            comment = get_comment_by_id(id_post, id_comment)
             if comment:
                 self.response.out.write(json.dumps(comment.todict()))
                 self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
@@ -182,7 +197,7 @@ class CommentIndividualHandler(webapp2.RequestHandler):
     def head(self, id_post, id_comment):
         post = get_by_id(id_post)
         if post:
-            comment = get_comment_by_id(id_comment)
+            comment = get_comment_by_id(id_post, id_comment)
             if comment:
                 self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
                 self.response.set_status(200)
@@ -195,7 +210,7 @@ class CommentIndividualHandler(webapp2.RequestHandler):
     def put(self, id_post, id_comment):
         post = get_by_id(id_post)
         if post:
-            comment = get_comment_by_id(id_comment)
+            comment = get_comment_by_id(id_post, id_comment)
             if comment:
                 comment.comment = self.response.get("msg")
                 self.response.set_status(204)
@@ -209,7 +224,7 @@ class CommentIndividualHandler(webapp2.RequestHandler):
     def delete(self, id_post, id_comment):
         post = get_by_id(id_post)
         if post:
-            comment = get_comment_by_id(id_comment)
+            comment = get_comment_by_id(id_post, id_comment)
             if comment:
                 post.comments.remove(comment)
                 self.response.set_status(200)
