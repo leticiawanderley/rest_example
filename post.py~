@@ -42,7 +42,7 @@ class Post:
         self.comments = []
         self.posts.append(self)
         self.comment_seed = 0
-        Post.seed += 1
+        self.seed += 1
 
     def add_comment(self, new_comment):
         self.comments.append(Comment(new_comment, self.comment_seed))
