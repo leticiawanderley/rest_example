@@ -105,15 +105,46 @@ class PostIndividualHandler(webapp2.RequestHandler):
     def delete(self, id):
 	post = get_by_id(id)
         if post:
-            self.response.set_status(200)
-	    Post.posts.remove(post)
+            Post.posts.remove(post)
+            self.response.set_status(200)	    
         else:
             self.response.set_status(404)
         #200 (OK). 404 (Not Found), if ID not found or invalid.
         
 
+class CommentCollectionHandler(webapp2.RequestHandler):
+
+    def get(self):
+        # 200 (OK), list of Posts. JSON content-type
+
+    def head(self):
+        # 200 (OK), JSON content-type
+
+    def post(self):
+        #201 (Created), 'Location' header with link to /post/:id containing new ID.
+
+
+class CommentIndividualHandler(webapp2.RequestHandler):
+    def get(self, id):
+        #200 (OK), the post. 404 (Not Found), if ID not found or invalid. JSON content-type
+
+
+    def head(self, id):
+        #200 (OK). 404 (Not Found), if ID not found or invalid. JSON content-type
+
+    def put(self, id):
+        #204 (No Content). 404 (Not Found), if ID not found or invalid.
+        
+
+    def delete(self, id):
+        #200 (OK). 404 (Not Found), if ID not found or invalid.
+        
+
+
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     (r'/post/(\d+)', PostIndividualHandler),
-    ('/post', PostCollectionHandler)
+    ('/post', PostCollectionHandler),
+    (r'/post/(\d+)/comment/(\d+)', PostIndividualHandler),
+    (r'/post/(\d+)/comment', PostCollectionHandler)
 ], debug=True)
