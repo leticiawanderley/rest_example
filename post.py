@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import webapp2, re, json
+import webapp2, re, json, jinja2, os
 
+jinja_environment = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
 class Comment:
-
     def __init__(self, comment, id):
         self.id = id
         self.comment = comment
@@ -78,12 +79,15 @@ def get_comment_by_id(id_post, id_comment):
    post = get_by_id(id_post)
    if post:
         for comment in post.comments:
-            if int(id_comment) == comment.id: return comment
+            if int(id_comment) == comment.id: 
+                return comment
    return None
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.write('Hello world!')
+	main_values = {}
+        main = jinja_environment.get_template('main.html')
+        self.response.out.write(main.render(main_values))
 
 class PostCollectionHandler(webapp2.RequestHandler):
 
