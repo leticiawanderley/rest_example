@@ -23,9 +23,9 @@ class Post:
         self.id = len(Post.posts)
         self.msg = msg
         self.comments = []
-        Post.posts.append(self.__dict__)
+        self.posts.append(self.__dict__)
 
-    def add_comment(new_comment):
+    def add_comment(self, new_comment):
         self.comments.append(new_comment)
 
     def __dict__():
@@ -34,6 +34,11 @@ class Post:
         dict["msg"] = self.msg
         dict["comments"] = self.comments
         return dict
+
+    def getById(self, id):
+        for post in self.posts:
+            if id == post.id: return post
+        return None
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -44,25 +49,42 @@ class PostCollectionHandler(webapp2.RequestHandler):
 
     def get(self):
         self.response.out.write(json.dumps(Post.posts))
+        self.response.set_status(200)
+        self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
         # 200 (OK), list of Posts. JSON content-type
 
     def head(self):
+        self.response.set_status(200)
+        self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
         # 200 (OK), JSON content-type
-        pass
 
     def post(self):
         post = Post(self.request.get("msg"))
+        self.response.set_status(201)
+        self.response.headers.add_header('Location', '/post' + post.id, charset='utf-8')
         #201 (Created), 'Location' header with link to /post/:id containing new ID.
 
 
 class PostIndividualHandler(webapp2.RequestHandler):
     def get(self, id):
+        post = Post.getById(id)
+        if post:
+            self.response.write(post.__dict__())
+            self.response.set_status(200)
+            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+        else:
+            self.response.set_status(404)
         #200 (OK), the post. 404 (Not Found), if ID not found or invalid. JSON content-type
-        pass
+
 
     def head(self, id):
+        post = Post.getById(id)
+        if post:
+            self.response.set_status(200)
+            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+        else:
+            self.response.set_status(404)
         #200 (OK). 404 (Not Found), if ID not found or invalid. JSON content-type
-        pass
 
     def put(self, id):
         #204 (No Content). 404 (Not Found), if ID not found or invalid.
