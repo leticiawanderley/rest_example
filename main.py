@@ -23,23 +23,28 @@ class Post:
         self.id = len(Post.posts)
         self.msg = msg
         self.comments = []
-        self.posts.append(self.__dict__)
+        self.posts.append(self)
 
     def add_comment(self, new_comment):
         self.comments.append(new_comment)
 
-    def __dict__(self):
-        dict = {}
-        dict["id"] = self.id
-        dict["msg"] = self.msg
-        dict["comments"] = self.comments
-        return dict
+    def todict(self):
+        dict1 = {}
+        dict1["id"] = self.id
+        dict1["msg"] = self.msg
+        dict1["comments"] = self.comments
+        return dict1
+def list_dicts():
+   dicts = []
+   for post in Post.posts:
+       dicts.append(post.todict())
+   return dicts
 
-    def getById(self, id):
-        for post in self.posts:
-            if id == post.id: 
-		return post
-        return None
+def get_by_id(id):
+   for post in Post.posts:
+       if int(id) == post.id: return post
+   return None
+
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -49,7 +54,7 @@ class MainHandler(webapp2.RequestHandler):
 class PostCollectionHandler(webapp2.RequestHandler):
 
     def get(self):
-        self.response.out.write(json.dumps(Post.posts))
+        self.response.out.write(json.dumps(list_dicts()))
         self.response.set_status(200)
         self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
         # 200 (OK), list of Posts. JSON content-type
@@ -68,9 +73,9 @@ class PostCollectionHandler(webapp2.RequestHandler):
 
 class PostIndividualHandler(webapp2.RequestHandler):
     def get(self, id):
-        post = Post.getById(id)
+        post = get_by_id(id)
         if post:
-            self.response.write(post.__dict__())
+            self.response.write(json.dumps(post.todict()))
             self.response.set_status(200)
             self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
         else:
@@ -79,7 +84,7 @@ class PostIndividualHandler(webapp2.RequestHandler):
 
 
     def head(self, id):
-        post = Post.getById(id)
+        post = get_by_id(id)
         if post:
             self.response.set_status(200)
             self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
@@ -88,15 +93,27 @@ class PostIndividualHandler(webapp2.RequestHandler):
         #200 (OK). 404 (Not Found), if ID not found or invalid. JSON content-type
 
     def put(self, id):
+	post = get_by_id(id)
+        if post:
+            post.msg = self.request.get("msg")
+            self.response.set_status(204)
+        else:
+            self.response.set_status(404)
         #204 (No Content). 404 (Not Found), if ID not found or invalid.
-        pass
+        
 
     def delete(self, id):
+	post = get_by_id(id)
+        if post:
+            Post.posts.remove(post)
+            self.response.set_status(200)	    
+        else:
+            self.response.set_status(404)
         #200 (OK). 404 (Not Found), if ID not found or invalid.
-        pass
+        
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
-    ('/post', PostCollectionHandler),
-    (r'/post/(\d+)', PostIndividualHandler)
+    (r'/post/(\d+)', PostIndividualHandler),
+    ('/post', PostCollectionHandler)
 ], debug=True)
