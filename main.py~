@@ -39,7 +39,7 @@ def list_dicts():
    dicts = []
    for post in Post.posts:
        dicts.append(post.todict())
-   return dicts
+   return json.dumps(dicts)
 
 def get_by_id(id):
    for post in Post.posts:
