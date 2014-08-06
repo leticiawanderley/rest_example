@@ -43,7 +43,7 @@ class Post:
     def add_comment(self, new_comment):
         self.comments.append(Comment(new_comment, self.comment_seed))
         self.comment_seed += 1
-        return comment_seed - 1
+        return self.comment_seed - 1
 
     def todict(self):
         dict1 = {}
@@ -74,7 +74,7 @@ def get_by_id(id):
    return None
 
 
-def get_by_id(id_post, id_comment):
+def get_comment_by_id(id_post, id_comment):
    post = get_by_id(id_post)
    if post:
         for comment in post.comments:
@@ -88,7 +88,7 @@ class MainHandler(webapp2.RequestHandler):
 class PostCollectionHandler(webapp2.RequestHandler):
 
     def get(self):
-        self.response.out.write(json.dumps(list_dicts()))
+        self.response.out.write(json.dumps(list_dicts_posts()))
         self.response.set_status(200)
         self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
         # 200 (OK), list of Posts. JSON content-type
@@ -170,7 +170,7 @@ class CommentCollectionHandler(webapp2.RequestHandler):
     def post(self, id):
         post = get_by_id(id)
         if post:
-            id_comment = post.add_comment(self.response.get("msg"))
+            id_comment = post.add_comment(self.request.get("msg"))
             self.response.set_status(201)	    
             self.response.headers.add_header('Location', '/post/' + str(post.id) + "/comment/" + str(id_comment), charset='utf-8')
         else:
@@ -212,7 +212,7 @@ class CommentIndividualHandler(webapp2.RequestHandler):
         if post:
             comment = get_comment_by_id(id_post, id_comment)
             if comment:
-                comment.comment = self.response.get("msg")
+                comment.comment = self.request.get("msg")
                 self.response.set_status(204)
             else:
                 self.response.set_status(404)
@@ -240,6 +240,7 @@ app = webapp2.WSGIApplication([
     ('/', MainHandler),
     (r'/post/(\d+)', PostIndividualHandler),
     ('/post', PostCollectionHandler),
-    (r'/post/(\d+)/comment/(\d+)', CommentIndividualHandler),
-    (r'/post/(\d+)/comment', CommentCollectionHandler)
+     (r'/post/(\d+)/comment', CommentCollectionHandler),
+    (r'/post/(\d+)/comment/(\d+)', CommentIndividualHandler)
+   
 ], debug=True)
