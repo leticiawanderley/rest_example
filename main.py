@@ -16,6 +16,20 @@
 #
 import webapp2, re, json
 
+
+class Comment:
+
+    def __init__(self, comment, id):
+        self.id = id
+        self.comment = comment
+     
+    def todict(self):
+        dict1 = {}
+        dict1["id"] = self.id
+        dict1["comment"] = self.comment
+        return dict1
+    
+
 class Post:
     posts = []
 
@@ -24,15 +38,20 @@ class Post:
         self.msg = msg
         self.comments = []
         self.posts.append(self)
+        self.comment_seed = 0
 
     def add_comment(self, new_comment):
-        self.comments.append(new_comment)
+        self.comments.append(Comment(new_comment, self.comment_seed))
+        self.comment_seed += 1
+        return comment_seed - 1
 
     def todict(self):
         dict1 = {}
         dict1["id"] = self.id
         dict1["msg"] = self.msg
-        dict1["comments"] = self.comments
+        dict1["comments"] = []
+        for comment in self.comments:
+            dict1["comments"].append(comment.todict())
         return dict1
 
 def list_dicts():
@@ -67,7 +86,7 @@ class PostCollectionHandler(webapp2.RequestHandler):
     def post(self):
         post = Post(self.request.get("msg"))
         self.response.set_status(201)
-        self.response.headers.add_header('Location', '/post' + str(post.id), charset='utf-8')
+        self.response.headers.add_header('Location', '/post/' + str(post.id), charset='utf-8')
         #201 (Created), 'Location' header with link to /post/:id containing new ID.
 
 
@@ -93,7 +112,7 @@ class PostIndividualHandler(webapp2.RequestHandler):
         #200 (OK). 404 (Not Found), if ID not found or invalid. JSON content-type
 
     def put(self, id):
-	post = get_by_id(id)
+	    post = get_by_id(id)
         if post:
             post.msg = self.request.get("msg")
             self.response.set_status(204)
@@ -103,7 +122,7 @@ class PostIndividualHandler(webapp2.RequestHandler):
         
 
     def delete(self, id):
-	post = get_by_id(id)
+    	post = get_by_id(id)
         if post:
             Post.posts.remove(post)
             self.response.set_status(200)	    
@@ -114,29 +133,51 @@ class PostIndividualHandler(webapp2.RequestHandler):
 
 class CommentCollectionHandler(webapp2.RequestHandler):
 
-    def get(self):
-        # 200 (OK), list of Posts. JSON content-type
+    def get(self, id):
+        post = get_by_id(id)
+        if post:
+            self.response.out.write(json.dumps(post.comments))
+            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+            self.response.set_status(200)	    
+        else:
+            self.response.set_status(404)
+        # 200 (OK), list of Comments. JSON content-type
 
-    def head(self):
+    def head(self, id):
+        post = get_by_id(id)
+        if post:
+            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+            self.response.set_status(200)	    
+        else:
+            self.response.set_status(404)
         # 200 (OK), JSON content-type
 
-    def post(self):
-        #201 (Created), 'Location' header with link to /post/:id containing new ID.
+    def post(self, id):
+        post = get_by_id(id)
+        if post:
+            id_comment = post.add_comment(self.response.get("msg"))
+            self.response.set_status(201)	    
+            self.response.headers.add_header('Location', '/post/' + str(post.id) + "/comment/" + str(id_comment), charset='utf-8')
+        else:
+            self.response.set_status(404)
+        
+        #201 (Created), 'Location' header with link to /post/:id/comment/:id containing new ID.
 
 
 class CommentIndividualHandler(webapp2.RequestHandler):
-    def get(self, id):
+    def get(self, id_post, id_comment):
+        
         #200 (OK), the post. 404 (Not Found), if ID not found or invalid. JSON content-type
 
 
-    def head(self, id):
+    def head(self, id_post, id_comment):
         #200 (OK). 404 (Not Found), if ID not found or invalid. JSON content-type
 
-    def put(self, id):
+    def put(self, id_post, id_comment):
         #204 (No Content). 404 (Not Found), if ID not found or invalid.
         
 
-    def delete(self, id):
+    def delete(self, id_post, id_comment):
         #200 (OK). 404 (Not Found), if ID not found or invalid.
         
 
