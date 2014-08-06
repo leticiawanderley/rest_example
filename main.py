@@ -14,7 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import webapp2, re
+import webapp2, re, json
+
+class Post:
+    posts = []
+
+    def __init__(self, msg):
+        self.id = len(Post.posts)
+        self.msg = msg
+        self.comments = []
+        Post.posts.append(self.__dict__)
+
+    def add_comment(new_comment):
+        self.comments.append(new_comment)
+
+    def __dict__():
+        dict = {}
+        dict["id"] = self.id
+        dict["msg"] = self.msg
+        dict["comments"] = self.comments
+        return dict
+
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -23,16 +43,16 @@ class MainHandler(webapp2.RequestHandler):
 class PostCollectionHandler(webapp2.RequestHandler):
 
     def get(self):
+        self.response.out.write(json.dumps(Post.posts))
         # 200 (OK), list of Posts. JSON content-type
-        pass
 
     def head(self):
         # 200 (OK), JSON content-type
         pass
 
     def post(self):
+        post = Post(self.request.get("msg"))
         #201 (Created), 'Location' header with link to /post/:id containing new ID.
-        pass
 
 
 class PostIndividualHandler(webapp2.RequestHandler):
