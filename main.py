@@ -37,7 +37,8 @@ class Post:
 
     def getById(self, id):
         for post in self.posts:
-            if id == post.id: return post
+            if id == post.id: 
+		return post
         return None
 
 
