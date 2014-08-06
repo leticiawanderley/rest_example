@@ -127,7 +127,7 @@ class PostIndividualHandler(webapp2.RequestHandler):
         #200 (OK). 404 (Not Found), if ID not found or invalid. JSON content-type
 
     def put(self, id):
-	    post = get_by_id(id)
+        post = get_by_id(id)
         if post:
             post.msg = self.request.get("msg")
             self.response.set_status(204)
@@ -137,7 +137,7 @@ class PostIndividualHandler(webapp2.RequestHandler):
         
 
     def delete(self, id):
-    	post = get_by_id(id)
+        post = get_by_id(id)
         if post:
             Post.posts.remove(post)
             self.response.set_status(200)	    
