@@ -19,6 +19,7 @@ import webapp2, re, json, jinja2, os
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
+
 class Comment:
     def __init__(self, comment, id):
         self.id = id
@@ -33,13 +34,15 @@ class Comment:
 
 class Post:
     posts = []
+    seed = 0
 
     def __init__(self, msg):
-        self.id = len(Post.posts)
+        self.id = self.seed
         self.msg = msg
         self.comments = []
         self.posts.append(self)
         self.comment_seed = 0
+        self.seed += 1
 
     def add_comment(self, new_comment):
         self.comments.append(Comment(new_comment, self.comment_seed))
@@ -155,7 +158,7 @@ class CommentCollectionHandler(webapp2.RequestHandler):
     def get(self, id):
         post = get_by_id(id)
         if post:
-            self.response.out.write(json.dumps(list_dict_comments(id)))
+            self.response.out.write(json.dumps(list_dicts_comments(id)))
             self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
             self.response.set_status(200)	    
         else:
