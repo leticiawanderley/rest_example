@@ -61,7 +61,7 @@ class PostCollectionHandler(webapp2.RequestHandler):
     def post(self):
         post = Post(self.request.get("msg"))
         self.response.set_status(201)
-        self.response.headers.add_header('Location', '/post' + post.id, charset='utf-8')
+        self.response.headers.add_header('Location', '/post' + str(post.id), charset='utf-8')
         #201 (Created), 'Location' header with link to /post/:id containing new ID.
 
 
