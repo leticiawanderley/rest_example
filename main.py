@@ -28,7 +28,7 @@ class Post:
     def add_comment(self, new_comment):
         self.comments.append(new_comment)
 
-    def __dict__():
+    def __dict__(self):
         dict = {}
         dict["id"] = self.id
         dict["msg"] = self.msg
