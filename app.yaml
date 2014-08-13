@@ -9,7 +9,7 @@ handlers:
   static_files: favicon.ico
   upload: favicon\.ico
 
-- url: /todo
+- url: /todo.*
   script: todo.app
 
 - url: /.*
