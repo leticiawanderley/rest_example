@@ -22,7 +22,7 @@ class Todo:
 def list_dicts_todos():
    dicts = []
    for todo in Todo.todos:
-       dicts.append(todo.todict())
+       dicts.append("http://rest-exercise.appspot.com/todo/"+ str(todo.id))
    return dicts
 
 def get_by_id(id):

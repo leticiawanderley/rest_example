@@ -61,7 +61,7 @@ class Post:
 def list_dicts_posts():
    dicts = []
    for post in Post.posts:
-       dicts.append(post.todict())
+       dicts.append("http://rest-exercise.appspot.com/post/"+str(post.id))
    return dicts
 
 def list_dicts_comments(id_post):
@@ -69,7 +69,7 @@ def list_dicts_comments(id_post):
    post = get_by_id(id_post)
    if post:
        for comment in post.comments:
-           dicts.append(comment.todict())
+           dicts.append("http://rest-exercise.appspot.com/post/"+str(post.id) +"/comment/" + str(comment.id))
    return dicts
 
 def get_by_id(id):
@@ -88,7 +88,7 @@ def get_comment_by_id(id_post, id_comment):
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-	main_values = {}
+        main_values = {}
         main = jinja_environment.get_template('main.html')
         self.response.out.write(main.render(main_values))
 
