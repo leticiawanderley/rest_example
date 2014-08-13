@@ -31,7 +31,6 @@ class Comment:
         dict1["comment"] = self.comment
         return dict1
     
-
 class Post:
     posts = []
     seed = 0
@@ -92,7 +91,6 @@ class MainHandler(webapp2.RequestHandler):
         self.response.out.write(main.render(main_values))
 
 class PostCollectionHandler(webapp2.RequestHandler):
-
     def get(self):
         if self.request.headers["Accept"] == "application/json":
             self.response.out.write(json.dumps(list_dicts_posts()))
@@ -100,7 +98,9 @@ class PostCollectionHandler(webapp2.RequestHandler):
             self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
             # 200 (OK), list of Posts. JSON content-type
         elif self.request.headers["Accept"] == "text/html":
-            pass  #TODO
+            posts_values = {"posts": list_dicts_posts()}
+            posts = jinja_environment.get_template('posts.html')
+            self.response.out.write(posts.render(posts_values))
         else:
             self.response.set_status(406)
 
@@ -132,7 +132,9 @@ class PostIndividualHandler(webapp2.RequestHandler):
                 self.response.set_status(200)
                 self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
             elif self.request.headers["Accept"] == "text/html":
-                pass  #TODO
+                post_values = {"post": post}
+            	post = jinja_environment.get_template('post.html')
+           	self.response.out.write(post.render(post_values))
             else:
                 self.response.set_status(406)
         else:
