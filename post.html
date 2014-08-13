@@ -3,6 +3,9 @@
 		<p><h3>Post</h3></p>
 		<p>Id: {{post.id}}</p>
 		<p>Mensagem: {{post.msg}}</p>
-		<p>Comments: {{post.comments}}</p>	
+		<p>Comments: {% for c in post.comments %}
+			{{c.comment}}, 
+		{% endfor %}		
+		</p>	
 	</body>
 </html>

@@ -101,6 +101,8 @@ class PostCollectionHandler(webapp2.RequestHandler):
             posts_values = {"posts": list_dicts_posts()}
             posts = jinja_environment.get_template('posts.html')
             self.response.out.write(posts.render(posts_values))
+	    self.response.set_status(200)
+	    self.response.headers.add_header('content-type', 'text/html', charset='utf-8')	
         else:
             self.response.set_status(406)
 
@@ -135,6 +137,8 @@ class PostIndividualHandler(webapp2.RequestHandler):
                 post_values = {"post": post}
             	post = jinja_environment.get_template('post.html')
            	self.response.out.write(post.render(post_values))
+		self.response.set_status(200)
+		self.response.headers.add_header('content-type', 'text/html', charset='utf-8')	
             else:
                 self.response.set_status(406)
         else:
@@ -187,9 +191,13 @@ class CommentCollectionHandler(webapp2.RequestHandler):
             if self.request.headers["Accept"] == "application/json":
                 self.response.out.write(json.dumps(list_dicts_comments(id)))
                 self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
-                self.response.set_status(200)
+           	self.response.set_status(200)
             elif self.request.headers["Accept"] == "text/html":
-                pass # TODO
+		comments_values = {"comments": list_dicts_comments(id)}
+           	comments = jinja_environment.get_template('comments.html')
+            	self.response.out.write(comments.render(comments_values))
+		self.response.set_status(200)
+		self.response.headers.add_header('content-type', 'text/html', charset='utf-8')	
             else:
                 self.response.set_status(406)
         else:
@@ -234,7 +242,11 @@ class CommentIndividualHandler(webapp2.RequestHandler):
                     self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
                     self.response.set_status(200)
                 elif self.request.headers["Accept"] == "text/html":
-                    pass # TODO
+		    comment_values = {"comment": comment}
+           	    comment = jinja_environment.get_template('comment.html')
+            	    self.response.out.write(comment.render(comment_values))
+                    self.response.set_status(200)
+		    self.response.headers.add_header('content-type', 'text/html', charset='utf-8')	
                 else:
                     self.response.set_status(406)
             else:
