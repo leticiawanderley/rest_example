@@ -1,0 +1,99 @@
+.menu {
+	z-index: 10;
+	background-color: #99f614;
+	height: 5em;
+	width: 100%;
+	position: absolute;
+	left: 0em;
+	top: 0;
+	box-shadow: 0px 3px 10px #888888;
+}
+
+.title-box {
+	background: rgba(255, 255, 255, 0.7);
+	top: 0;
+	left: 5em;
+	position: inherit;
+	padding: 0.7em;
+	box-shadow: 0px 0px 30px #FFFFFF;
+}
+
+.title {
+	font-size: 35px;
+	font-family: 'Bree Serif', Georgia, serif;
+ 	text-shadow: 0px 0px 6px #FFFFFF;
+ 	color: #fff;
+}
+
+.title-newpost {
+	font-size: 18px;
+	font-family: 'Bree Serif', Georgia, serif;
+ 	text-shadow: 0px 0px 6px #aaaaaa;
+ 	color: #fff;
+}
+
+.title-newpost:hover {
+	font-size: 20px;
+	font-family: 'Bree Serif', Georgia, serif;
+ 	text-shadow: 0px 0px 12px #aaaaaa;
+ 	color: #fff;
+}
+
+#botao-newpost {
+	background: rgba(255, 255, 255, 0.7);
+	bottom: 0;
+	right: 10em;
+	position: inherit;
+	padding: 1em;
+	box-shadow: 0px 0px 30px #FFFFFF;
+}
+
+.sheet {
+	z-index: -3;
+	min-height: 800px;
+	width: 50%;
+	background-color: white;
+	margin-left: 22.5%;
+	margin-top: 4em; 
+	padding-top: 30px;
+	padding-bottom: 200px;
+	margin-bottom: 200px;
+	box-shadow: 0px 0px 10px #FFFFFF;
+	padding: 1em;
+}
+
+.newpostsheet {
+	z-index: 0;
+	padding: 1em;
+	top:1.2em;
+	right: 0;
+	background-color: #99f614;
+	margin-top: 4em; 
+	box-shadow: 0px 0px 20px #000000;
+	display: none;
+	position: absolute;
+}
+
+#msg {
+	z-index: 11;
+	background: yellow;
+	top: 0;
+	left: 40%;
+	position: absolute;
+	color: #aaaaaa;
+	padding: 1em;
+	margin: 1em;
+	box-shadow: 0px 0px 3px #bbbbbb;
+}
+.post {
+	color: #aaaaaa;
+	padding: 1em;
+	margin: 1em;
+	box-shadow: 0px 0px 3px #bbbbbb;
+}
+
+body {
+	font-family: monospace;
+	direction: ltr;
+	background: #d9d9d9;
+}
