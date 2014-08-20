@@ -22,7 +22,7 @@ class Todo:
 def list_dicts_todos():
    dicts = []
    for todo in Todo.todos:
-       dicts.append(todo.todict())
+       dicts.append("http://rest-exercise.appspot.com/todo/"+ str(todo.id))
    return dicts
 
 def get_by_id(id):
@@ -34,14 +34,24 @@ def get_by_id(id):
 class TodoCollectionHandler(webapp2.RequestHandler):
 
     def get(self):
-        self.response.out.write(json.dumps(list_dicts_todos()))
-        self.response.set_status(200)
-        self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+        if self.request.headers["Accept"] == "application/json":
+            self.response.out.write(json.dumps(list_dicts_todos()))
+            self.response.set_status(200)
+            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+        elif self.request.headers["Accept"] == "text/html":
+            pass  #TODO
+        else:
+            self.response.set_status(406)
         # 200 (OK), list of Posts. JSON content-type
 
     def head(self):
-        self.response.set_status(200)
-        self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+        if self.request.headers["Accept"] == "application/json":
+            self.response.set_status(200)
+            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+        elif self.request.headers["Accept"] == "text/html":
+            pass  #TODO
+        else:
+            self.response.set_status(406)
         # 200 (OK), JSON content-type
 
     def post(self):
@@ -54,9 +64,14 @@ class TodoIndividualHandler(webapp2.RequestHandler):
     def get(self, id):
         todo = get_by_id(id)
         if todo:
-            self.response.write(json.dumps(todo.todict()))
-            self.response.set_status(200)
-            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+            if self.request.headers["Accept"] == "application/json":
+                self.response.write(json.dumps(todo.todict()))
+                self.response.set_status(200)
+                self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+            elif self.request.headers["Accept"] == "text/html":
+                pass  #TODO
+            else:
+                self.response.set_status(406)
         else:
             self.response.set_status(404)
         #200 (OK), the post. 404 (Not Found), if ID not found or invalid. JSON content-type
@@ -65,8 +80,13 @@ class TodoIndividualHandler(webapp2.RequestHandler):
     def head(self, id):
         todo = get_by_id(id)
         if todo:
-            self.response.set_status(200)
-            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+            if self.request.headers["Accept"] == "application/json":
+                self.response.set_status(200)
+                self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+            elif self.request.headers["Accept"] == "text/html":
+                pass  #TODO
+            else:
+                self.response.set_status(406)
         else:
             self.response.set_status(404)
         #200 (OK). 404 (Not Found), if ID not found or invalid. JSON content-type

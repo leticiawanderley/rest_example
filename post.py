@@ -31,7 +31,6 @@ class Comment:
         dict1["comment"] = self.comment
         return dict1
     
-
 class Post:
     posts = []
     seed = 0
@@ -62,6 +61,7 @@ def list_dicts_posts():
    dicts = []
    for post in Post.posts:
        dicts.append(post.todict())
+       #dicts.append("http://rest-exercise.appspot.com/post/"+str(post.id))
    return dicts
 
 def list_dicts_comments(id_post):
@@ -70,13 +70,13 @@ def list_dicts_comments(id_post):
    if post:
        for comment in post.comments:
            dicts.append(comment.todict())
+           #dicts.append("http://rest-exercise.appspot.com/post/"+str(post.id) +"/comment/" + str(comment.id))
    return dicts
 
 def get_by_id(id):
    for post in Post.posts:
        if int(id) == post.id: return post
    return None
-
 
 def get_comment_by_id(id_post, id_comment):
    post = get_by_id(id_post)
@@ -88,22 +88,37 @@ def get_comment_by_id(id_post, id_comment):
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-	main_values = {}
+        main_values = {}
         main = jinja_environment.get_template('main.html')
         self.response.out.write(main.render(main_values))
 
 class PostCollectionHandler(webapp2.RequestHandler):
-
     def get(self):
-        self.response.out.write(json.dumps(list_dicts_posts()))
-        self.response.set_status(200)
-        self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
-        # 200 (OK), list of Posts. JSON content-type
+        if self.request.headers["Accept"] == "application/json" or self.request.headers["Accept"] != "":
+            self.response.out.write(json.dumps(list_dicts_posts()))
+            self.response.set_status(200)
+            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+            # 200 (OK), list of Posts. JSON content-type
+        elif self.request.headers["Accept"] == "text/html":
+            posts_values = {"posts": list_dicts_posts()}
+            posts = jinja_environment.get_template('posts.html')
+            self.response.out.write(posts.render(posts_values))
+            self.response.set_status(200)
+            self.response.headers.add_header('content-type', 'text/html', charset='utf-8')
+        else:
+            self.response.set_status(406)
 
     def head(self):
-        self.response.set_status(200)
-        self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
-        # 200 (OK), JSON content-type
+        if self.request.headers["Accept"] == "application/json" or self.request.headers["Accept"] != "":
+            self.response.set_status(200)
+            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+            # 200 (OK), JSON content-type
+        elif self.request.headers["Accept"] == "text/html":
+            self.response.set_status(200)    
+            self.response.headers.add_header('content-type', 'text/html', charset='utf-8')
+            # 200 (OK), HTML content-type
+        else:
+            self.response.set_status(406)
 
     def post(self):
         post = Post(self.request.get("msg"))
@@ -116,9 +131,18 @@ class PostIndividualHandler(webapp2.RequestHandler):
     def get(self, id):
         post = get_by_id(id)
         if post:
-            self.response.write(json.dumps(post.todict()))
-            self.response.set_status(200)
-            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+            if self.request.headers["Accept"] == "application/json" or self.request.headers["Accept"] != "":
+                self.response.write(json.dumps(post.todict()))
+                self.response.set_status(200)
+                self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+            elif self.request.headers["Accept"] == "text/html":
+                post_values = {"post": post}
+                post = jinja_environment.get_template('post.html')
+                self.response.out.write(post.render(post_values))
+                self.response.set_status(200)
+                self.response.headers.add_header('content-type', 'text/html', charset='utf-8')
+            else:
+                self.response.set_status(406)
         else:
             self.response.set_status(404)
         #200 (OK), the post. 404 (Not Found), if ID not found or invalid. JSON content-type
@@ -127,8 +151,16 @@ class PostIndividualHandler(webapp2.RequestHandler):
     def head(self, id):
         post = get_by_id(id)
         if post:
-            self.response.set_status(200)
-            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+            if self.request.headers["Accept"] == "application/json" or self.request.headers["Accept"] != "":
+                self.response.set_status(200)
+                self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+        # 200 (OK), JSON content-type
+            elif self.request.headers["Accept"] == "text/html":
+                self.response.set_status(200)
+                self.response.headers.add_header('content-type', 'text/html', charset='utf-8')
+        # 200 (OK), HTML content-type
+            else:
+                self.response.set_status(406)
         else:
             self.response.set_status(404)
         #200 (OK). 404 (Not Found), if ID not found or invalid. JSON content-type
@@ -147,7 +179,7 @@ class PostIndividualHandler(webapp2.RequestHandler):
         post = get_by_id(id)
         if post:
             Post.posts.remove(post)
-            self.response.set_status(200)	    
+            self.response.set_status(200)        
         else:
             self.response.set_status(404)
         #200 (OK). 404 (Not Found), if ID not found or invalid.
@@ -158,9 +190,18 @@ class CommentCollectionHandler(webapp2.RequestHandler):
     def get(self, id):
         post = get_by_id(id)
         if post:
-            self.response.out.write(json.dumps(list_dicts_comments(id)))
-            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
-            self.response.set_status(200)	    
+            if self.request.headers["Accept"] == "application/json" or self.request.headers["Accept"] != "":
+                self.response.out.write(json.dumps(list_dicts_comments(id)))
+                self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+                self.response.set_status(200)
+            elif self.request.headers["Accept"] == "text/html":
+                comments_values = {"comments": list_dicts_comments(id)}
+                comments = jinja_environment.get_template('comments.html')
+                self.response.out.write(comments.render(comments_values))
+                self.response.set_status(200)
+                self.response.headers.add_header('content-type', 'text/html', charset='utf-8')
+            else:
+                self.response.set_status(406)
         else:
             self.response.set_status(404)
         # 200 (OK), list of Comments. JSON content-type
@@ -168,8 +209,15 @@ class CommentCollectionHandler(webapp2.RequestHandler):
     def head(self, id):
         post = get_by_id(id)
         if post:
-            self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
-            self.response.set_status(200)	    
+            if self.request.headers["Accept"] == "application/json" or self.request.headers["Accept"] != "":
+                self.response.set_status(200)
+                self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+            elif self.request.headers["Accept"] == "text/html":
+                self.response.set_status(200)
+                self.response.headers.add_header('content-type', 'text/html', charset='utf-8')
+            # 200 (OK), HTML content-type
+            else:
+                self.response.set_status(406)
         else:
             self.response.set_status(404)
         # 200 (OK), JSON content-type
@@ -178,7 +226,7 @@ class CommentCollectionHandler(webapp2.RequestHandler):
         post = get_by_id(id)
         if post:
             id_comment = post.add_comment(self.request.get("msg"))
-            self.response.set_status(201)	    
+            self.response.set_status(201)        
             self.response.headers.add_header('Location', '/post/' + str(post.id) + "/comment/" + str(id_comment), charset='utf-8')
         else:
             self.response.set_status(404)
@@ -191,9 +239,18 @@ class CommentIndividualHandler(webapp2.RequestHandler):
         if post:
             comment = get_comment_by_id(id_post, id_comment)
             if comment:
-                self.response.out.write(json.dumps(comment.todict()))
-                self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
-                self.response.set_status(200)
+                if self.request.headers["Accept"] == "application/json" or self.request.headers["Accept"] != "":
+                    self.response.out.write(json.dumps(comment.todict()))
+                    self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+                    self.response.set_status(200)
+                elif self.request.headers["Accept"] == "text/html":
+                    comment_values = {"comment": comment}
+                    comment = jinja_environment.get_template('comment.html')
+                    self.response.out.write(comment.render(comment_values))
+                    self.response.set_status(200)
+                    self.response.headers.add_header('content-type', 'text/html', charset='utf-8')
+                else:
+                    self.response.set_status(406)
             else:
                 self.response.set_status(404)
         else:
@@ -206,8 +263,15 @@ class CommentIndividualHandler(webapp2.RequestHandler):
         if post:
             comment = get_comment_by_id(id_post, id_comment)
             if comment:
-                self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
-                self.response.set_status(200)
+                if self.request.headers["Accept"] == "application/json" or self.request.headers["Accept"] != "":
+                    self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+                    self.response.set_status(200)
+                elif self.request.headers["Accept"] == "text/html":
+                    self.response.headers.add_header('content-type', 'text/html', charset='utf-8')
+                    self.response.set_status(200)
+            # 200 (OK), HTML content-type
+                else:
+                    self.response.set_status(406)
             else:
                 self.response.set_status(404)
         else:

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="css/blog.css">
+		<script> 
+			$(document).ready(function(){
+			  $("#botao-newpost").click(function(){
+			    $(".newpostsheet").slideToggle("fast");
+			  });
+			});
+
+
+		    function chamada_ajax2() {
+		      var dados = null;
+		      $(".sheet").append("<p id='msg'>Dados sendo lidos...</p>");
+		      $.getJSON("http://rest-exercise.appspot.com/post", function(json) {
+		        dados = json;
+		        for (var i=0; i<dados.length; i++) {
+		          $(".sheet").append("<div class=\"post\">" + dados[i].msg + "</td> <td>" + dados[i].comments + "</div>");
+		        }
+		        $("#msg").fadeOut();
+		      });
+		    }
+  			$(chamada_ajax2);
+			
+
+		</script>
+		<title>JooLêmon Blog</title>
+	</head>
+	<body>
+		<div class="menu">
+			<div class="title-box"><span class="title">JooLêmon Blog</span></div>
+			<div id="botao-newpost"><a class="title-newpost">Nova Postagem</a></div>
+		</div>
+		<div class="sheet">
+			<div class="post">post1</div>
+			<div class="post">post2</div>
+			<div class="post">post3</div>
+		</div>
+		<div class="newpostsheet">
+			<textarea rows="4" cols="50">Digite sua nova postagem aqui.</textarea>
+		</div>
+	</body>
+</html>

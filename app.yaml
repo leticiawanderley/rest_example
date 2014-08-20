@@ -9,7 +9,13 @@ handlers:
   static_files: favicon.ico
   upload: favicon\.ico
 
-- url: /todo
+- url: /css
+  static_dir: css
+
+- url: /cliente.*
+  script: cliente.app
+
+- url: /todo.*
   script: todo.app
 
 - url: /.*

@@ -14,13 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import webapp2, re, json, jinja2, os
-
-jinja_environment = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
+import webapp2, re, json
 
 
 class Comment:
+
     def __init__(self, comment, id):
         self.id = id
         self.comment = comment
@@ -34,20 +32,18 @@ class Comment:
 
 class Post:
     posts = []
-    seed = 0
 
     def __init__(self, msg):
-        self.id = Post.seed
+        self.id = len(Post.posts)
         self.msg = msg
         self.comments = []
         self.posts.append(self)
         self.comment_seed = 0
-        self.seed += 1
 
     def add_comment(self, new_comment):
         self.comments.append(Comment(new_comment, self.comment_seed))
         self.comment_seed += 1
-        return self.comment_seed - 1
+        return comment_seed - 1
 
     def todict(self):
         dict1 = {}
@@ -57,19 +53,10 @@ class Post:
         for comment in self.comments:
             dict1["comments"].append(comment.todict())
         return dict1
-
-def list_dicts_posts():
+def list_dicts():
    dicts = []
    for post in Post.posts:
        dicts.append(post.todict())
-   return dicts
-
-def list_dicts_comments(id_post):
-   dicts = []
-   post = get_by_id(id_post)
-   if post:
-       for comment in post.comments:
-           dicts.append(comment.todict())
    return dicts
 
 def get_by_id(id):
@@ -78,24 +65,15 @@ def get_by_id(id):
    return None
 
 
-def get_comment_by_id(id_post, id_comment):
-   post = get_by_id(id_post)
-   if post:
-        for comment in post.comments:
-            if int(id_comment) == comment.id: 
-                return comment
-   return None
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-	main_values = {}
-        main = jinja_environment.get_template('main.html')
-        self.response.out.write(main.render(main_values))
+        self.response.write('Hello world!')
 
 class PostCollectionHandler(webapp2.RequestHandler):
 
     def get(self):
-        self.response.out.write(json.dumps(list_dicts_posts()))
+        self.response.out.write(json.dumps(list_dicts()))
         self.response.set_status(200)
         self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
         # 200 (OK), list of Posts. JSON content-type
@@ -158,7 +136,7 @@ class CommentCollectionHandler(webapp2.RequestHandler):
     def get(self, id):
         post = get_by_id(id)
         if post:
-            self.response.out.write(json.dumps(list_dicts_comments(id)))
+            self.response.out.write(json.dumps(post.comments))
             self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
             self.response.set_status(200)	    
         else:
@@ -177,7 +155,7 @@ class CommentCollectionHandler(webapp2.RequestHandler):
     def post(self, id):
         post = get_by_id(id)
         if post:
-            id_comment = post.add_comment(self.request.get("msg"))
+            id_comment = post.add_comment(self.response.get("msg"))
             self.response.set_status(201)	    
             self.response.headers.add_header('Location', '/post/' + str(post.id) + "/comment/" + str(id_comment), charset='utf-8')
         else:
@@ -189,7 +167,7 @@ class CommentIndividualHandler(webapp2.RequestHandler):
     def get(self, id_post, id_comment):
         post = get_by_id(id_post)
         if post:
-            comment = get_comment_by_id(id_post, id_comment)
+            comment = get_comment_by_id(id_comment)
             if comment:
                 self.response.out.write(json.dumps(comment.todict()))
                 self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
@@ -204,7 +182,7 @@ class CommentIndividualHandler(webapp2.RequestHandler):
     def head(self, id_post, id_comment):
         post = get_by_id(id_post)
         if post:
-            comment = get_comment_by_id(id_post, id_comment)
+            comment = get_comment_by_id(id_comment)
             if comment:
                 self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
                 self.response.set_status(200)
@@ -217,9 +195,9 @@ class CommentIndividualHandler(webapp2.RequestHandler):
     def put(self, id_post, id_comment):
         post = get_by_id(id_post)
         if post:
-            comment = get_comment_by_id(id_post, id_comment)
+            comment = get_comment_by_id(id_comment)
             if comment:
-                comment.comment = self.request.get("msg")
+                comment.comment = self.response.get("msg")
                 self.response.set_status(204)
             else:
                 self.response.set_status(404)
@@ -231,7 +209,7 @@ class CommentIndividualHandler(webapp2.RequestHandler):
     def delete(self, id_post, id_comment):
         post = get_by_id(id_post)
         if post:
-            comment = get_comment_by_id(id_post, id_comment)
+            comment = get_comment_by_id(id_comment)
             if comment:
                 post.comments.remove(comment)
                 self.response.set_status(200)
@@ -247,7 +225,6 @@ app = webapp2.WSGIApplication([
     ('/', MainHandler),
     (r'/post/(\d+)', PostIndividualHandler),
     ('/post', PostCollectionHandler),
-     (r'/post/(\d+)/comment', CommentCollectionHandler),
-    (r'/post/(\d+)/comment/(\d+)', CommentIndividualHandler)
-   
+    (r'/post/(\d+)/comment/(\d+)', CommentIndividualHandler),
+    (r'/post/(\d+)/comment', CommentCollectionHandler)
 ], debug=True)

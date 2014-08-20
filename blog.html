@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="/css/blog.css">
+		<script> 
+			$(document).ready(function(){
+			  $("#botao-newpost").click(function(){
+			    $(".newpostsheet").slideToggle("fast");
+			  });
+			});
+
+			$(document).ready(function(){
+			  $("#botao-reload").click(function(){
+			    $(carregar_posts);
+			  });
+			});
+
+		    function carregar_posts() {
+		      var dados = null;
+		      $(".sheet").append("<p id='msg'>Carregando...</p>");
+		      $.getJSON("/post", function(json) {
+		        dados = json;
+		        $(".sheet").empty();
+		        for (var i=0; i < dados.length; i++) {
+		          $(".sheet").append("<div class=\"post\" id=\""+dados[i].id+"\">" + dados[i].msg  + "</div>");
+		        }
+		        $("#msg").fadeOut(3000);
+		      });
+		    }
+  			$(carregar_posts);
+			
+
+		</script>
+		<title>JooLêmon Blog</title>
+	</head>
+	<body>
+		<div class="menu">
+			<div class="title-box"><span class="title">JooLêmon Blog</span></div>
+			<div id="botao-newpost"><a class="title-newpost">Nova Postagem</a></div>
+			<div id="botao-reload"><a class="title-newpost">Recarregar</a></div>
+		</div>
+		<div class="sheet">
+		</div>
+		<div class="newpostsheet">
+			<textarea rows="4" cols="50">Digite sua nova postagem aqui.</textarea>
+		</div>
+	</body>
+</html>
